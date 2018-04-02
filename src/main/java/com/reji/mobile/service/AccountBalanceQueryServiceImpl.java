@@ -15,9 +15,20 @@ import static com.reji.mobile.util.MathHelper.isValidAmount;
 public class AccountBalanceQueryServiceImpl implements IAccountBalanceQueryService {
 
     @Autowired
+    public AccountBalanceQueryServiceImpl(AccountStore accountStore) {
+        this.accountStore = accountStore;
+    }
+
     private AccountStore accountStore;
 
     public AccountBalanceResposeModel queryAccount(AccountBalanceRequestModel accountBalanceRequestModel){
+
+        return execute(accountBalanceRequestModel);
+
+
+    }
+
+    public AccountBalanceResposeModel execute(AccountBalanceRequestModel accountBalanceRequestModel) {
 
         BigDecimal accountBalance = null;
 
@@ -37,8 +48,6 @@ public class AccountBalanceQueryServiceImpl implements IAccountBalanceQueryServi
 
         return new AccountBalanceResposeModel().setAccount(accountBalanceRequestModel.getAccount()).setBalance(accountBalance)
                 .setSuccessful(isSuccessful).setMessageDescription(messageDescription);
-
-
     }
 
 }

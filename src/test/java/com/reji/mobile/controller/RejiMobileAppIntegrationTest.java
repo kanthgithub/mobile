@@ -1,5 +1,6 @@
 package com.reji.mobile.controller;
 
+import com.reji.mobile.config.RejiMobileAppLoadTestConfig;
 import com.reji.mobile.configuration.AsyncConfig;
 import com.reji.mobile.model.AccountBalanceResposeModel;
 import org.apache.http.HttpResponse;
@@ -36,7 +37,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 /**
  * Re
  */
-@ContextConfiguration(classes = {AsyncConfig.class})
+@ContextConfiguration(classes = {RejiMobileAppLoadTestConfig.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {RejiMobileApplication.class},
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

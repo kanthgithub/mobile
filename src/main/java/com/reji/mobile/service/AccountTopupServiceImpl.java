@@ -14,11 +14,22 @@ import com.reji.mobile.exception.InvalidTopupAmountException;
 @Component
 public class AccountTopupServiceImpl implements IAccountTopupService {
 
-    @Autowired
     private AccountStore accountStore;
+
+
+    @Autowired
+    public AccountTopupServiceImpl(AccountStore accountStore) {
+        this.accountStore = accountStore;
+    }
+
 
     public AccountTopupResposeModel topupAccount(AccountTopupRequestModel accountTopupRequestModel){
 
+        return execute(accountTopupRequestModel);
+
+    }
+
+    public AccountTopupResposeModel execute(AccountTopupRequestModel accountTopupRequestModel) {
         BigDecimal accountBalance = null;
 
         Boolean isSuccessful = Boolean.FALSE;
@@ -57,7 +68,6 @@ public class AccountTopupServiceImpl implements IAccountTopupService {
                 .setTopupAmount(topupAmountInDecimal)
                 .setSuccessful(isSuccessful)
                 .setMessageDescription(messageDescription);
-
     }
 
 }
