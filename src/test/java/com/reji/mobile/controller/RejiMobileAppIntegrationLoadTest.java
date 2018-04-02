@@ -57,6 +57,13 @@ public class RejiMobileAppIntegrationLoadTest {
         restTemplate.postForEntity(cleanUpAccountsURL,null,Boolean.class);
     }
 
+    @Test
+    public void load_Testing_Async_Calls(){
+
+
+
+    }
+
 
 
 
