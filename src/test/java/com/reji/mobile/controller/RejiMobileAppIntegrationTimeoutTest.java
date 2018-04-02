@@ -1,10 +1,9 @@
 package com.reji.mobile.controller;
 
 import com.reji.mobile.RejiMobileApplication;
-import com.reji.mobile.config.RejiMobileAppLoadTestConfig;
+import com.reji.mobile.config.RejiMobileAppLoadTestForFailureConfig;
 import com.reji.mobile.model.AccountBalanceResposeModel;
 import com.reji.mobile.model.AccountMaintenanceResposeModel;
-import com.reji.mobile.model.AccountTopupResposeModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,12 +25,12 @@ import static org.junit.Assert.*;
 /**
  * Re
  */
-@ContextConfiguration(classes = {RejiMobileAppLoadTestConfig.class})
+@ContextConfiguration(classes = {RejiMobileAppLoadTestForFailureConfig.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {RejiMobileApplication.class},
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
-public class RejiMobileAppIntegrationLoadTest {
+public class RejiMobileAppIntegrationTimeoutTest {
 
     @LocalServerPort
     private int serverport;
@@ -64,13 +63,7 @@ public class RejiMobileAppIntegrationLoadTest {
         String queryResourceUrl = url+"/rejiMobile/getAccountBalance/99875432";
         ResponseEntity<AccountBalanceResposeModel> response = restTemplate.getForEntity(queryResourceUrl, AccountBalanceResposeModel.class);
         assertNotNull(response);
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        AccountBalanceResposeModel accountBalanceResposeModel = response.getBody();
-        assertNotNull(accountBalanceResposeModel);
-        assertEquals(BigDecimal.valueOf(100.0000).setScale(4,BigDecimal.ROUND_UP),accountBalanceResposeModel.getBalance());
-
-
-
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.SERVICE_UNAVAILABLE));
     }
 
 

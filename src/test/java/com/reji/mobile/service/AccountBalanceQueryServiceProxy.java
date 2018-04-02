@@ -29,7 +29,10 @@ public class AccountBalanceQueryServiceProxy extends AccountBalanceQueryServiceI
 
     public AccountBalanceResposeModel queryAccount(AccountBalanceRequestModel accountBalanceRequestModel) {
         if(accountBalanceDelayRequired){
+            log.info("AccountBalanceQueryServiceProxy: into Limbo State for: {}",accountBalanceDelayPeriodInMilliSec);
             addDelay(accountBalanceDelayPeriodInMilliSec);
+            log.info("AccountBalanceQueryServiceProxy: wakeup from Limbo after sleeping for: {}",accountBalanceDelayPeriodInMilliSec);
+
         }
 
         return execute(accountBalanceRequestModel);

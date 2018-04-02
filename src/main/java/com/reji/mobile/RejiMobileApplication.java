@@ -11,6 +11,8 @@ import org.springframework.boot.autoconfigure.*;
 public class RejiMobileApplication {
 
 	public static void main(String[] args) {
+		System.setProperty("server.connection-timeout","600000");
+
 		SpringApplication.run(RejiMobileApplication.class, args);
 	}
 }
