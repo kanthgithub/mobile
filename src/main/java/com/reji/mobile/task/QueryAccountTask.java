@@ -9,12 +9,15 @@ import java.math.BigDecimal;
 import java.util.concurrent.Callable;
 
 import com.reji.mobile.service.IAccountBalanceQueryService;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.reji.mobile.exception.*;
+import org.slf4j.LoggerFactory;
 
 public class QueryAccountTask implements Callable<ResponseEntity<?>> {
 
+    private final Logger log = LoggerFactory.getLogger(QueryAccountTask.class);
 
     private final AccountBalanceRequestModel accountBalanceRequestModel;
 
@@ -42,8 +45,12 @@ public class QueryAccountTask implements Callable<ResponseEntity<?>> {
      */
     @Override
     public ResponseEntity<?> call() throws Exception {
+        log.info("QueryAccountTask: triggering query for account details: {} ",accountBalanceRequestModel);
 
         AccountBalanceResposeModel accountBalanceResposeModel = accountBalanceQueryService.queryAccount(accountBalanceRequestModel);
+
+        log.info("QueryAccountTask: completed querying account details: {} ",accountBalanceResposeModel);
+
         return new ResponseEntity<AccountBalanceResposeModel>(
                 accountBalanceResposeModel, HttpStatus.OK);
     }

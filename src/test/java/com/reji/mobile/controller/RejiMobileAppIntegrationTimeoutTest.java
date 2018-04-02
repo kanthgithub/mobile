@@ -4,9 +4,11 @@ import com.reji.mobile.RejiMobileApplication;
 import com.reji.mobile.config.RejiMobileAppLoadTestForFailureConfig;
 import com.reji.mobile.model.AccountBalanceResposeModel;
 import com.reji.mobile.model.AccountMaintenanceResposeModel;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -20,7 +22,9 @@ import java.math.BigDecimal;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
-
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.springframework.web.client.HttpServerErrorException;
 
 /**
  * Re
@@ -31,6 +35,7 @@ import static org.junit.Assert.*;
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 public class RejiMobileAppIntegrationTimeoutTest {
+    static final Logger log = LoggerFactory.getLogger(RejiMobileAppIntegrationTimeoutTest.class);
 
     @LocalServerPort
     private int serverport;
@@ -61,16 +66,16 @@ public class RejiMobileAppIntegrationTimeoutTest {
         cleanUpAccounts();
         initializeAccounts("99875432","100.0000");
         String queryResourceUrl = url+"/rejiMobile/getAccountBalance/99875432";
-        ResponseEntity<AccountBalanceResposeModel> response = restTemplate.getForEntity(queryResourceUrl, AccountBalanceResposeModel.class);
-        assertNotNull(response);
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.SERVICE_UNAVAILABLE));
+        ResponseEntity<AccountBalanceResposeModel> response = null;
+        try {
+           response = restTemplate.getForEntity(queryResourceUrl, AccountBalanceResposeModel.class);
+        }catch(Exception excep){
+            assertNull(response);
+            assertNotNull(excep);
+            assertThat(excep, IsInstanceOf.instanceOf(HttpServerErrorException.class));
+
+            HttpServerErrorException httpServerErrorException = (HttpServerErrorException)excep;
+        }
     }
-
-
-
-
-
-
-
 
 }
