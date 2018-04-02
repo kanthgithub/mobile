@@ -56,23 +56,21 @@ public class RejiMobileAppIntegrationTest {
         url="http://localhost:"+serverport;
     }
 
-    public void initializeAccounts() throws Exception{
-        String topupResourceUrl = url+"/rejiMobile/addAccount/99875432/100.0000";
-        restTemplate.postForEntity(topupResourceUrl,null,AccountMaintenanceResposeModel.class);
+    public void initializeAccounts(String account,String initialBalance) throws Exception{
+        String addAccountsURL = String.format("%s/rejiMobile/addAccount/%s/%s",url,account,initialBalance);
+        restTemplate.postForEntity(addAccountsURL,null,AccountMaintenanceResposeModel.class);
 
     }
 
     public void cleanUpAccounts() throws Exception{
-
-        String topupResourceUrl = url+"/rejiMobile/cleanAllAccounts";
-        restTemplate.postForEntity(topupResourceUrl,null,Boolean.class);
-
+        String cleanUpAccountsURL = url+"/rejiMobile/cleanAllAccounts";
+        restTemplate.postForEntity(cleanUpAccountsURL,null,Boolean.class);
     }
 
     @Test
     public void test_Account_Balance() throws Exception{
         cleanUpAccounts();
-        initializeAccounts();
+        initializeAccounts("99875432","100.0000");
         String queryResourceUrl = url+"/rejiMobile/getAccountBalance/99875432";
         ResponseEntity<AccountBalanceResposeModel> response = restTemplate.getForEntity(queryResourceUrl, AccountBalanceResposeModel.class);
         assertNotNull(response);
@@ -85,7 +83,7 @@ public class RejiMobileAppIntegrationTest {
     @Test
     public void test_TopUp_Account() throws Exception{
         cleanUpAccounts();
-        initializeAccounts();
+        initializeAccounts("99875432","100.0000");
         String topupResourceUrl = url+"/rejiMobile/topupAccount/99875432/123.123";
 
         ResponseEntity<AccountTopupResposeModel> response =
@@ -102,7 +100,7 @@ public class RejiMobileAppIntegrationTest {
     @Test
     public void test_For_Invalid_Account() throws Exception{
         cleanUpAccounts();
-        initializeAccounts();
+        initializeAccounts("99875432","100.0000");
         String queryResourceUrl = url+"/rejiMobile/getAccountBalance/89875433";
         ResponseEntity<AccountBalanceResposeModel> response = restTemplate.getForEntity(queryResourceUrl, AccountBalanceResposeModel.class);
         assertNotNull(response);
@@ -122,7 +120,7 @@ public class RejiMobileAppIntegrationTest {
     @Test
     public void test_For_Invalid_Topup_Amount() throws Exception{
         cleanUpAccounts();
-        initializeAccounts();
+        initializeAccounts("99875432","100.0000");
         String topupResourceUrl = url+"/rejiMobile/topupAccount/99875432/-123.123";
 
         ResponseEntity<AccountTopupResposeModel> response =
