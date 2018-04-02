@@ -5,6 +5,7 @@ import com.reji.mobile.config.RejiMobileAppLoadTestConfig;
 import com.reji.mobile.model.AccountBalanceResposeModel;
 import com.reji.mobile.model.AccountMaintenanceResposeModel;
 import com.reji.mobile.model.AccountTopupResposeModel;
+import org.apache.http.client.HttpClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,20 +19,22 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.net.URI;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.*;
+import java.util.concurrent.*;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 
-/**
- * Re
- */
 @ContextConfiguration(classes = {RejiMobileAppLoadTestConfig.class})
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {RejiMobileApplication.class},
                 webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
 public class RejiMobileAppIntegrationLoadTest {
+    static final Logger log = LoggerFactory.getLogger(RejiMobileAppIntegrationLoadTest.class);
 
     @LocalServerPort
     private int serverport;
@@ -68,13 +71,54 @@ public class RejiMobileAppIntegrationLoadTest {
         AccountBalanceResposeModel accountBalanceResposeModel = response.getBody();
         assertNotNull(accountBalanceResposeModel);
         assertEquals(BigDecimal.valueOf(100.0000).setScale(4,BigDecimal.ROUND_UP),accountBalanceResposeModel.getBalance());
-
-
-
     }
 
 
 
+    @Test
+    public void testConcurrentMaxUsers() throws Exception{
+
+        cleanUpAccounts();
+
+        for(int index=0;index<40;index++) {
+            initializeAccounts(index+"","100.0000");
+        }
+
+        ExecutorService executorService = Executors.newFixedThreadPool(35);
+
+        for(int index=0;index<25;index++){
+            log.info("Running RestTemplate Get Call--> {}",index);
+
+            String getRequestURL = url+"/rejiMobile/getAccountBalance/"+index;
+            TestAsyncExecutorTask testAsyncExecutorTask = new TestAsyncExecutorTask(restTemplate,getRequestURL);
+            executorService.submit(testAsyncExecutorTask);
+        }
+
+        String getRequestURL = url+"/rejiMobile/getAccountBalance/"+26;
+        restTemplate.getForEntity(getRequestURL, AccountBalanceResposeModel.class);
+
+    }
+
+    public static class TestAsyncExecutorTask implements Callable<ResponseEntity<AccountBalanceResposeModel>>{
+        private RestTemplate restTemplate;
+        private String requestURL;
+
+        public TestAsyncExecutorTask(RestTemplate restTemplate,String requestURL){
+            this.restTemplate = restTemplate;
+            this.requestURL = requestURL;
+        }
+
+
+        public ResponseEntity<AccountBalanceResposeModel> call(){
+            try{
+                return restTemplate.getForEntity(requestURL, AccountBalanceResposeModel.class);
+            }catch (Exception ex){
+
+            }
+
+            return null;
+        }
+    }
 
 
 
